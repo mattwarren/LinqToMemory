@@ -6,7 +6,7 @@ Linq-to-Memory rather than Linq-to-Objects see [Rico Mariani's excellent blog po
 
 > In fact, I suggested at that time that we write a thing I called “Linq To Memory” – a stark contrast from “Linq to Objects” to help facilitate this.  Basically Linq to Memory was a hypotheticial thing that would be more like an in-memory-database with “tables” that were based on **dense structures like b-tree** and such but no query language other than Linq needed.
 
-So it will be using a B+Tree, something like this:
+So it will be using a B+Tree, something like this (image from [How does a relational database work](http://coding-geek.com/how-databases-work)):
 
 ![Image of B+Tree](http://coding-geek.com/wp-content/uploads/2015/08/database_index.png.pagespeed.ce.Ppq1ie22mj.png)
 
