@@ -7,6 +7,7 @@ using System;
 using System.Globalization;
 using System.IO;
 using Voron.Impl;
+using Voron.Tests.Trees.WorkingWithStructs;
 using Xunit;
 
 namespace Voron.Tests.Trees
@@ -15,7 +16,7 @@ namespace Voron.Tests.Trees
 	{
 		class Foo
 		{
-			 
+
 		}
 
 		public enum SchemaFields
@@ -188,6 +189,53 @@ namespace Voron.Tests.Trees
 				Assert.Equal(4, stats.ReadInt(IndexingStatsFields.Successes));
 				Assert.Equal(1, stats.ReadByte(IndexingStatsFields.IsValid));
 				Assert.Equal(indexedAt, DateTime.FromBinary(stats.ReadLong(IndexingStatsFields.IndexedAt)));
+			}
+		}
+
+		[PrefixesFact]
+		public void CanReadAndWriteStructsWithProxyClassFromTrees()
+		{
+			var indexedAt = new DateTime(2015, 1, 20);
+
+			var schema = ProxyGenerator.GetSchema<TestClass>();
+			foreach (var field in schema.Fields)
+				Console.WriteLine("{0,10} - {1} - {2}", field.Name, field.Type.ToString().PadRight(14), field.ToString());
+			Console.WriteLine();
+
+			using (var tx = Env.NewTransaction(TransactionFlags.ReadWrite))
+			{
+				var tree = Env.CreateTree(tx, "stats");
+
+				var stats = new Structure<int>(schema);
+				TestClass testClass = ProxyGenerator.CreateWriter<TestClass>(stats);
+				testClass.Attempts = 5;
+				testClass.Errors = -1;
+				testClass.Successes = 4;
+				testClass.IsValid = 1;
+				testClass.IndexedAt = indexedAt.ToBinary();
+				testClass.Text = "Some Text";
+
+				tree.WriteStruct("stats/1", stats);
+
+				tx.Commit();
+			}
+
+			using (var tx = Env.NewTransaction(TransactionFlags.Read))
+			{
+				var tree = tx.ReadTree("stats");
+
+				var stats = tree.ReadStruct("stats/1", schema).Reader;
+
+				TestClass testClass = ProxyGenerator.CreateReader<TestClass>(stats);
+				Console.WriteLine("Attempts: {0}", testClass.Attempts);
+				Console.WriteLine("Text: {0}", stats.ReadString(5));
+
+				Assert.Equal(5, testClass.Attempts);
+				Assert.Equal(-1, testClass.Errors);
+				Assert.Equal(4, testClass.Successes);
+				Assert.Equal(1, testClass.IsValid);
+				Assert.Equal(indexedAt, DateTime.FromBinary(testClass.IndexedAt));
+				Assert.Equal("Some Text", testClass.Text);
 			}
 		}
 

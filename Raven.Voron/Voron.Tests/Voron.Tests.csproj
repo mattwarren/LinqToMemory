@@ -145,6 +145,7 @@
     <Compile Include="Storage\Snapshots.cs" />
     <Compile Include="Storage\SplittingVeryBig.cs" />
     <Compile Include="Storage\VeryBig.cs" />
+    <Compile Include="Trees\WorkingWithStructs\ProxyGenerator.cs" />
     <Compile Include="Trees\RavenDB_3114_WorkingWithStructs.cs" />
     <Compile Include="Trees\Basic.cs" />
     <Compile Include="Trees\CanDefrag.cs" />
@@ -158,6 +159,8 @@
     <Compile Include="Trees\Rebalance.cs" />
     <Compile Include="Trees\TreeRenaming.cs" />
     <Compile Include="Trees\Updates.cs" />
+    <Compile Include="Trees\WorkingWithStructs\StructureSchemaWithoutEnums`1.cs" />
+    <Compile Include="Trees\WorkingWithStructs\TestClass.cs" />
     <Compile Include="Util\CrcTests.cs" />
     <Compile Include="Util\ImmutableAppendOnlyTests.cs" />
     <Compile Include="Util\StreamExtensions.cs" />
