@@ -43,7 +43,7 @@ namespace Voron
 
 		private int _fixedFieldOffset = 0;
 		private int _variableFieldIndex = 0;
-		internal StructureField[] Fields = new StructureField[0];
+		internal protected StructureField[] Fields = new StructureField[0];
 
 		public StructureSchema()
 		{
@@ -52,6 +52,16 @@ namespace Voron
 			if (fieldType != typeof(Enum) && fieldType.IsEnum == false)
 				throw new ArgumentException("IStructure schema can only have fields of enum type.");
 
+			IsFixedSize = true;
+		}
+
+		// Add an extra ctor, so that we can subclass this and create a Schema that doesn't ENFORE enums
+		protected StructureSchema(bool onlyAllowEnums)
+		{
+			var fieldType = typeof(TField);
+
+			if (onlyAllowEnums && fieldType != typeof(Enum) && fieldType.IsEnum == false)
+				throw new ArgumentException("IStructure schema can only have fields of enum type.");
 
 			IsFixedSize = true;
 		}
@@ -78,7 +88,7 @@ namespace Voron
 
 		public StructureField this[int index]
 		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get
 			{
 				return index >= Fields.Length ? null : Fields[index];
@@ -88,11 +98,15 @@ namespace Voron
 		public StructureSchema<TField> Add<T>(TField field)
 		{
 			var index = field.GetHashCode();
+			var type = typeof(T);
+			return Add(type, index, field);
+		}
 
+		// Add an extra overload, so that we can subclass this and create a Schema that doesn't ENFORE enums
+		protected StructureSchema<TField> Add(Type type, int index, object field)
+		{
 			if (Fields.Length - 1 >= index && Fields[index] != null)
 				throw new ArgumentException(string.Format("Field '{0}' is already defined", field));
-
-			var type = typeof (T);
 
 			if (type == typeof(string) || type == typeof(byte[]))
 			{
